@@ -3,8 +3,6 @@ package com.example.lecture4hw
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,18 +14,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lecture4hw.ui.theme.Lecture4HWTheme
 
 class MainActivity : ComponentActivity() {
@@ -38,8 +36,8 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
-                ){
-                    PostList()
+                ) {
+                    PostListScreen()
                 }
             }
         }
@@ -47,22 +45,31 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PostList(){
-    LazyColumn (
+fun PostListScreen() {
+    val viewModel = viewModel(modelClass = MainViewModel::class.java)
+    val state by viewModel.state
+    PostListContent(posts = state.posts)
+}
+
+
+@Composable
+fun PostListContent(posts: List<Post>) {
+    LazyColumn(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        items(10) {
-            PostCard()
+        items(posts.size) { index ->
+            PostCard(post = posts[index])
         }
     }
 }
 
 @Composable
-fun PostCard() {
-    Card(shape = RoundedCornerShape(8.dp),
+fun PostCard(post: Post) {
+    Card(
+        shape = RoundedCornerShape(8.dp),
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth(),
@@ -74,14 +81,14 @@ fun PostCard() {
                 .padding(20.dp)
         ) {
             Text(
-                text = "Post Title",
+                text = post.title,
                 style = MaterialTheme.typography.bodyLarge,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = stringResource(R.string.some_text),
+                text = post.description,
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 12.sp
             )
@@ -94,6 +101,8 @@ fun PostCard() {
 @Composable
 fun GreetingPreview() {
     Lecture4HWTheme {
-        PostList()
+        PostListContent(posts = List(10) {
+            Post("Post Title", R.string.some_text.toString())
+        })
     }
 }
